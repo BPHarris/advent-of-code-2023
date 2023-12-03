@@ -4,3 +4,6 @@ day*/build
 # rust
 day*/target
 day*/Cargo.lock
+
+# vscode
+.vscode

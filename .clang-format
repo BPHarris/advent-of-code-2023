@@ -1,0 +1,31 @@
+---
+BasedOnStyle: LLVM
+
+UseTab: ForIndentation
+TabWidth: 4
+IndentWidth: 4
+ColumnLimit: 88
+UseCRLF: false  # use \n
+
+SeparateDefinitionBlocks: Always
+
+# public:/private: indented 1 tab less
+IndentAccessModifiers: true
+AccessModifierOffset: -4
+
+SpaceAfterCStyleCast: true
+
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+AlignTrailingComments: true
+SpacesBeforeTrailingComments: 3
+
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+
+SortIncludes: true
+
+#  #define SHORT_NAME       42
+#  #define LONGER_NAME      0x007f   # does nice spacing for macros
+AlignConsecutiveMacros: Consecutive
