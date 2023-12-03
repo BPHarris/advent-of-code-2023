@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ $(($1 % 2)) -eq 0 ]; then
+
+    printf "DAY $1 BOTH PARTS (RUST)\n"
+    cargo build "day$1" \
+        && time "./day$1/target/$1"
+
+else
+
+    printf "DAY $1 (C++)\n"
+
+    parts=${2:-"1,2"}
+    for part in $(echo $parts | sed "s/,/ /g") ; do
+        printf "PART $part\n"
+        g++ --std=c++23 -O3 "day$1/$part/main.cpp" -o "day$1/build/$1$part" \
+            && time "./day$1/build/$1$part"
+        printf "\n"
+    done
+
+fi
+
