@@ -32,6 +32,10 @@ Or you can build and run with:
 
 Day     | Part One      | Part Two      | Execution Time    |
 :-------|--------------:|--------------:|-------------------:
-1 | 56049 | 54530 | 0.003s
-2 | 2679 | 77607 | 0.002s
-3 | 522726 |
+1 | 56049 | 54530 | 0.002s [1]
+2 | 2679 | 77607 | 0.001s
+3 | 522726 | 81721933 | 0.005s [2]
+
+[1] - Part one and part two were separate executables taking 0.001s and 0.002s respectively, combining would likely be less than the sum of execution times
+
+[2] - Due to naive algorithm which iterated over all part and symbol lexemes in O(|N| * |S|), could be made faster by only checking the symbols in rows (n-1) to (n+1), not 0..N, for a part on row n. But this was deemed pointless given that it was a single run on once input of only 140x140 possible symbols (reality: 730) and 70x140 numbers (reality: 1192) the execution was basically instant.

@@ -2,8 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <optional>
-#include <ranges>
 #include <string>
 #include <vector>
 
@@ -57,11 +57,9 @@ parse(const std::vector<std::string> &data) {
 
 			if (is_noop(c)) {
 				col++;
-
 			} else if (is_symbol(c)) {
 				schematic->symbols.push_back({c, {col, row}});
 				col++;
-
 			} else if (is_digit(c)) {
 				uint8_t length = 1;
 				while (length <= 3 && col + length < line.length() &&
@@ -77,7 +75,6 @@ parse(const std::vector<std::string> &data) {
 				schematic->numbers.push_back({v, {col, row}, {col_, row}});
 
 				col += length;
-
 			} else {
 				std::cout << "unrecognised symbol: " << c << std::endl;
 				col++;
@@ -108,20 +105,22 @@ read_file(const std::string filename) {
 	return lines;
 }
 
-bool
-is_engine_part(const schematic_t &schematic, const number_t n) {
+inline bool
+is_adjacent(const symbol_t s, const number_t n) {
+	// cast to signed to avoid overflow/underflow
 	int16_t x0 = (int16_t) n.start.col - 1;
 	int16_t y0 = (int16_t) n.start.row - 1;
 	int16_t x1 = (int16_t) n.end.col + 1;
 	int16_t y1 = (int16_t) n.end.row + 1;
 
-	for (auto s : schematic.symbols) {
-		if ((x0 <= s.pos.col && s.pos.col <= x1) &&
-		    (y0 <= s.pos.row && s.pos.row <= y1)) {
-			return true;
-		}
-	}
-	return false;
+	return ((x0 <= s.pos.col && s.pos.col <= x1) &&
+	        (y0 <= s.pos.row && s.pos.row <= y1));
+}
+
+inline bool
+is_engine_part(const schematic_t &schematic, const number_t n) {
+	return std::any_of(schematic.symbols.begin(), schematic.symbols.end(),
+	                   [n](const auto &s) { return is_adjacent(s, n); });
 }
 
 std::unique_ptr<std::vector<number_t>>
@@ -135,6 +134,51 @@ find_engine_parts(const schematic_t &schematic) {
 	}
 
 	return parts;
+}
+
+inline bool
+is_gear(const schematic_t &schematic, const symbol_t s) {
+	size_t n_adjacent_numbers =
+	    std::count_if(schematic.numbers.begin(), schematic.numbers.end(),
+	                  [s](const auto &n) { return is_adjacent(s, n); });
+	return n_adjacent_numbers == 2;
+}
+
+uint64_t
+calc_gear_ratio(const std::vector<number_t> &numbers) {
+	uint64_t product{1};
+
+	for (auto n : numbers) {
+		product *= (uint64_t) n.v;
+	}
+
+	return product;
+}
+
+std::unique_ptr<std::vector<number_t>>
+find_adjacent_numbers(const schematic_t &schematic, const symbol_t s) {
+	auto numbers = std::make_unique<std::vector<number_t>>();
+
+	for (auto n : schematic.numbers) {
+		if (is_adjacent(s, n)) {
+			numbers->push_back(n);
+		}
+	}
+
+	return numbers;
+}
+
+std::unique_ptr<std::vector<uint64_t>>
+find_gear_ratios(const schematic_t &schematic) {
+	auto gears_ratios = std::make_unique<std::vector<uint64_t>>();
+
+	for (auto s : schematic.symbols) {
+		if (!is_gear(schematic, s))
+			continue;
+		gears_ratios->push_back(calc_gear_ratio(*find_adjacent_numbers(schematic, s)));
+	}
+
+	return gears_ratios;
 }
 
 uint64_t
@@ -158,16 +202,22 @@ main() {
 	}
 
 	auto data = std::move(possible_data.value());
-
 	auto schematic = parse(*data);
-	auto engine_parts = find_engine_parts(*schematic);
 
+	// part one
+	auto engine_parts = find_engine_parts(*schematic);
 	auto part_1_result = sum_engine_part_values(*engine_parts);
 
+	std::cout << "total number of symbols : " << schematic->symbols.size() << std::endl;
 	std::cout << "total number of parts   : " << schematic->numbers.size() << std::endl;
 	std::cout << "  of which engine parts : " << engine_parts->size() << std::endl;
 	std::cout << std::endl;
-	std::cout << "result: " << part_1_result << std::endl;
+	std::cout << "result (part one): " << part_1_result << std::endl;
+
+	// part two
+	auto gear_ratios = find_gear_ratios(*schematic);
+	auto part_2_result = std::accumulate(gear_ratios->begin(), gear_ratios->end(), 0);
+	std::cout << "result (part two): " << part_2_result << std::endl;
 
 	return EXIT_SUCCESS;
 }
