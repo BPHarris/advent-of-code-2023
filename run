@@ -3,8 +3,10 @@
 if [ $(($1 % 2)) -eq 0 ]; then
 
     printf "DAY $1 BOTH PARTS (RUST)\n"
-    cargo build "day$1" \
-        && time "./day$1/target/$1"
+
+    pushd "day$1" &> /dev/null
+    cargo build && printf "\n" && time "./target/debug/day$1"
+    popd &> /dev/null
 
 else
 
