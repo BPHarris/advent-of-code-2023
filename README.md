@@ -12,7 +12,7 @@ Compiled and run from repo root with `g++ --std=c++23 -O3 day1/a/main.cpp -o day
 
 ## Even days: Rust 1.74.0
 
-Compiled and run from cargo root with the good 'ol `cargo run`.
+Compiled and run from cargo root with the good 'ol `cargo run --release`.
 
 
 ## Run
@@ -35,6 +35,7 @@ Day     | Part One      | Part Two      | Execution Time    |
 1 | 56049 | 54530 | 0.002s [1]
 2 | 2679 | 77607 | 0.001s
 3 | 522726 | 81721933 | 0.005s [2]
+4 | 23941 | 5571760 | 0.002s
 
 [1] - Part one and part two were separate executables taking 0.001s and 0.002s respectively, combining would likely be less than the sum of execution times
 
