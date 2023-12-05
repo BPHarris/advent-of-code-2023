@@ -12,13 +12,23 @@ else
 
     printf "DAY $1 (C++)\n"
 
-    parts=${2:-"1,2"}
-    for part in $(echo $parts | sed "s/,/ /g") ; do
-        printf "PART $part\n"
-        g++ --std=c++23 -O3 "day$1/$part/main.cpp" -o "day$1/build/$1$part" \
+    if [ "$1" -lt 5 ]; then
+        # Before day 5 for cpp day 1 and 2 are separate executables
+        parts=${2:-"1,2"}
+        for part in $(echo $parts | sed "s/,/ /g") ; do
+            printf "PART $part\n"
+            g++ --std=c++23 -O3 -Wall -Wextra -pedantic \
+                    "day$1/$part/main.cpp" -o "day$1/build/$1$part" \
+                && time "./day$1/build/$1$part"
+            printf "\n"
+        done
+    else
+        # After day 5 everything is one executatble because it is neater
+        g++ --std=c++23 -O3 -Wall -Wextra -pedantic \
+                "day$1/src/main.cpp" -o "day$1/build/$1$part" \
             && time "./day$1/build/$1$part"
         printf "\n"
-    done
+    fi
 
 fi
 

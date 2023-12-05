@@ -36,7 +36,10 @@ Day     | Part One      | Part Two      | Execution Time    |
 2 | 2679 | 77607 | 0.001s
 3 | 522726 | 81721933 | 0.005s [2]
 4 | 23941 | 5571760 | 0.002s
+5 | 806029445 | 59370572 | 7m1.778s [3]
 
 [1] - Part one and part two were separate executables taking 0.001s and 0.002s respectively, combining would likely be less than the sum of execution times
 
 [2] - Due to naive algorithm which iterated over all part and symbol lexemes in O(|N| * |S|), could be made faster by only checking the symbols in rows (n-1) to (n+1), not 0..N, for a part on row n. But this was deemed pointless given that it was a single run on once input of only 140x140 possible symbols (reality: 730) and 70x140 numbers (reality: 1192) the execution was basically instant.
+
+[3] - Todo: fast version from notes.
