@@ -6,6 +6,8 @@
 #include <optional>
 #include <vector>
 
+#include <omp.h>
+
 #include "almanac.hpp"
 
 std::unique_ptr<std::vector<std::string>>
@@ -40,36 +42,59 @@ min_location_number(const almanac::input_almanac_maps_t &almanac_maps) {
 
 size_t
 min_location_number_for_seed_range(const almanac::input_almanac_maps_t &almanac_maps) {
-    size_t smallest = UINT64_MAX;
+	size_t smallest = UINT64_MAX;
 
 	// for part 2, initial seeds come in pairs of <start> and <range>
+	// break these down into somewhat similar sized chunks for parallelising
+	// 10m and 20m blocks seem to be about the same speed
+	std::vector<almanac::seed_range_t> seed_ranges;
 	for (size_t i = 0; i < almanac_maps.initial_seeds.size();) {
-		almanac::seed_range_t seeds{almanac_maps.initial_seeds.at(i++),
-		                            almanac_maps.initial_seeds.at(i++)};
+		auto start = almanac_maps.initial_seeds.at(i++);
+		auto range = almanac_maps.initial_seeds.at(i++);
 
-		for (size_t seed = seeds.start; seed < seeds.end(); seed++) {
-			auto current = almanac::follow_map_route(almanac_maps, seed);
-            if (current < smallest) {
-                smallest = current;
-            }
+		size_t block_size = 40000000;
+
+		while (range > 0) {
+			if (range > block_size) {
+				seed_ranges.push_back({start, block_size});
+				start += block_size + 1;
+				range -= block_size;
+			} else {
+				seed_ranges.push_back({start, range});
+				range = 0;
+			}
 		}
 	}
 
-    // TODO TRY SPEED OF:
-    // humidity-to-location map
-    // this means that humidity has ranges
-    //   0..55  =>   0..55
-    //  56..92  =>  60..96
-    //  93..96  =>  56..59
-    // temperature-to-humidity map
-    //  69..70  =>   0..1   =>   0..1 (in endpoints)
-    //  ...
+	std::cout << "parallel blocks: " << seed_ranges.size() << std::endl;
+
+#pragma omp parallel for reduction(min : smallest)
+	for (auto seeds : seed_ranges) {
+		for (size_t seed = seeds.start; seed < seeds.end(); seed++) {
+			auto current = almanac::follow_map_route(almanac_maps, seed);
+			if (current < smallest) {
+				smallest = current;
+			}
+		}
+	}
+
+	// TODO TRY SPEED OF:
+	// humidity-to-location map
+	// this means that humidity has ranges
+	//   0..55  =>   0..55
+	//  56..92  =>  60..96
+	//  93..96  =>  56..59
+	// temperature-to-humidity map
+	//  69..70  =>   0..1   =>   0..1 (in endpoints)
+	//  ...
 
 	return smallest;
 }
 
 int
 main() {
+	omp_set_num_threads(omp_get_max_threads());
+
 	const std::filesystem::path filepath{"day5/data/5.in"};
 
 	if (!std::filesystem::exists(filepath)) {
@@ -82,6 +107,8 @@ main() {
 
 	auto part_1_result = min_location_number(*maps);
 	std::cout << "result (part one): " << part_1_result << std::endl;
+
+	std::cout << std::endl << "----------" << std::endl;
 
 	auto part_2_result = min_location_number_for_seed_range(*maps);
 	std::cout << "result (part two): " << part_2_result << std::endl;
