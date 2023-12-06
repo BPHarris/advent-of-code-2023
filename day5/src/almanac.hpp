@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <numeric>
+#include <sstream>
 #include <vector>
 
 namespace almanac {
@@ -75,22 +76,11 @@ parse_seeds(const std::string &line, const size_t offset = 0) {
 	// specified by offset
 	auto seeds = std::make_unique<std::vector<size_t>>();
 
-	for (size_t i = offset; i < line.length();) {
-		if (isdigit(line.at(i))) {
-			size_t length{1};
-			while (length <= 15 && i + length < line.length() &&
-			       isdigit(line.at(i + length))) {
-				length++;
-			}
+	std::istringstream stream(line.substr(offset));
 
-			char buf[16]{'\0'};
-			line.copy(buf, length, i);
-
-			seeds->push_back(std::stoull(buf));
-			i += length;
-		} else {
-			i++;
-		}
+	size_t seed;
+	while (stream >> seed) {
+		seeds->push_back(seed);
 	}
 
 	return seeds;
