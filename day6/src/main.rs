@@ -1,4 +1,4 @@
-use rand::Rng;
+use std::collections::VecDeque;
 use std::fs;
 
 mod race;
@@ -18,19 +18,37 @@ fn product_of_winning_charge_times(races: &Vec<Race>) -> u64 {
         .product();
 }
 
-fn find_start_point(race: &Race) -> u64 {
-    let mut rng = rand::thread_rng();
-    let mut start = rng.gen_range(0..=race.time);
+fn find_start_point(race: &Race) -> Option<u64> {
+    // recursively splitting binary search to find any valid start point
+    let mut queue = VecDeque::new();
+    queue.push_back(race.time / 2);
 
-    while !race.is_wining_charge_time(start) {
-        start = rng.gen_range(0..=race.time)
+    // since each no two tree paths will visit the same guess, if the seen counter
+    // reaches the max number of possible start times we can quit (there is no solution),
+    // to avoid an infinite loop
+    let possible_start_times = race.time as usize + 1;
+    let mut seen = 0 as usize;
+
+    while seen < possible_start_times {
+        let guess = queue.pop_front().unwrap();
+        seen += 1;
+
+        if race.is_wining_charge_time(guess) {
+            return Some(guess);
+        }
+
+        let lower_guess = guess / 2;
+        let upper_guess = guess + guess / 2;
+
+        queue.push_back(lower_guess);
+        queue.push_back(upper_guess);
     }
 
-    return start;
+    return None;
 }
 
 fn binary_search_for_lower_bound(race: &Race) -> u64 {
-    let ref_point = find_start_point(race);
+    let ref_point = find_start_point(race).expect("no valid start time");
 
     // a recursive closure would be nice but they look tricky!
     // maybe just unwrap into loop...
@@ -58,7 +76,7 @@ fn binary_search_for_lower_bound(race: &Race) -> u64 {
 }
 
 fn binary_search_for_upper_bound(race: &Race) -> u64 {
-    let ref_point = find_start_point(race);
+    let ref_point = find_start_point(race).expect("no valid start time");
 
     fn search(race: &Race, ref_point: u64, point: u64) -> u64 {
         if race.is_upper_bound(point) {
