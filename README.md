@@ -7,7 +7,7 @@ Odd numbered days (1st December, 3rd December, etc) are in C++23, where as even 
 
 ## Odd days: C++23
 
-Compiled and run from repo root with `g++ --std=c++23 -O3 day1/a/main.cpp -o day1/build/1a`, etc. Locally on Arch (btw) the `--std` flag is required to allow for `std::views` though this still flags as an error in vscode...
+Compiled and run from repo root with `g++ --std=c++23 -O3 -fopenmp -lpthread -Wall -Wextra -pedantic day1/a/main.cpp -o day1/build/1a`, etc. Locally on Arch (btw) the `--std` flag is required to allow for `std::views` though this still flags as an error in vscode...
 
 
 ## Even days: Rust 1.74.0
@@ -38,9 +38,12 @@ Day     | Part One      | Part Two      | Execution Time    |
 4 | 23941 | 5571760 | 0.002s
 5 | 806029445 | 59370572 | 2m24.628s [3]
 6 | 2756160 | 34788142 | 0.001s
+7 | 254024898 | 254115617 | 0.002s [4]
 
 [1] - Part one and part two were separate executables taking 0.001s and 0.002s respectively, combining would likely be less than the sum of execution times
 
 [2] - Due to naive algorithm which iterated over all part and symbol lexemes in O(|N| * |S|), could be made faster by only checking the symbols in rows (n-1) to (n+1), not 0..N, for a part on row n. But this was deemed pointless given that it was a single run on once input of only 140x140 possible symbols (reality: 730) and 70x140 numbers (reality: 1192) the execution was basically instant.
 
 [3] - Todo: fast version as described in notes.
+
+[4] - Todo: make the card strength functions more generalised rather than many if-else statements, also generalise the simple/complex rules.

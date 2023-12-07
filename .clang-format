@@ -9,8 +9,7 @@ UseCRLF: false  # use \n
 
 SeparateDefinitionBlocks: Always
 
-# public:/private: indented 1 tab less
-IndentAccessModifiers: true
+# no indent on public/private
 AccessModifierOffset: -4
 
 SpaceAfterCStyleCast: true
