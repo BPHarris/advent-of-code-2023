@@ -39,6 +39,7 @@ Day     | Part One      | Part Two      | Execution Time    |
 5 | 806029445 | 59370572 | 2m24.628s [3]
 6 | 2756160 | 34788142 | 0.001s
 7 | 254024898 | 254115617 | 0.002s [4]
+8 | 20777 | 13289612809129 | 0.030s
 
 [1] - Part one and part two were separate executables taking 0.001s and 0.002s respectively, combining would likely be less than the sum of execution times
 
