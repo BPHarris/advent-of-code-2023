@@ -2,7 +2,7 @@
 
 if [ $(($1 % 2)) -eq 0 ]; then
 
-    printf "DAY $1 BOTH PARTS (RUST)\n"
+    printf "DAY %s (RUST)\n" "$1"
 
     pushd "day$1" &> /dev/null
     cargo build --release && printf "\n" && time "./target/release/day$1"
@@ -10,13 +10,14 @@ if [ $(($1 % 2)) -eq 0 ]; then
 
 else
 
-    printf "DAY $1 (C++)\n"
+    printf "DAY %s (C++)\n" "$1"
+    printf "\n"  # rustc has a newline, so be consistent
 
     if [ "$1" -lt 5 ]; then
         # Before day 5 for cpp day 1 and 2 are separate executables
         parts=${2:-"1,2"}
-        for part in $(echo $parts | sed "s/,/ /g") ; do
-            printf "PART $part\n"
+        for part in ${parts//,/ } ; do
+            mkdir "./day$1/build" &>/dev/null
             g++ --std=c++23 -O3 -fopenmp -lpthread -Wall -Wextra -pedantic \
                     "day$1/$part/main.cpp" -o "day$1/build/$1$part" \
                 && time "./day$1/build/$1$part"
@@ -24,6 +25,7 @@ else
         done
     else
         # After day 5 everything is one executatble because it is neater
+        mkdir "./day$1/build" &>/dev/null
         g++ --std=c++23 -O3 -fopenmp -lpthread -Wall -Wextra -pedantic \
                 "day$1/src/main.cpp" -o "day$1/build/$1$part" \
             && time "./day$1/build/$1$part"
